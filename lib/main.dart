@@ -11,30 +11,55 @@ class MyApp extends StatelessWidget {   // StatelessWidget: os widgets nao mudam
   @override                             // Sobrescreve um método (build()), por ser uma classe abstrata e nós devemos determinar seu comportamento
   Widget build(BuildContext context) {  //  BuildContext: Localiza cada widget
     return MaterialApp(                 //  ver Material design
-      title: 'Welcome to Flutter',
-      home: Scaffold(                   //  Scaffold: permite montar a estrutura básica de uma tela
-        appBar: AppBar(
-          title: const Text('Welcome to Flutter'),
-        ),
-        body: Center(
-          child: RandomWords(), 
-        ),
-      ),
+      title: 'Startup name generator',
+      home: RandomWords(),
     );
   }
 }
 
-//StatefulWidget (stful)
+// StatefulWidget (stful)
 
 class RandomWords extends StatefulWidget {
   @override 
-  _RandomWordsState createState() => _RandomWordsState();
+  _RandomWordsState createState() => _RandomWordsState(); // underline == private
 }
 
-class _RandomWordsState extends State<RandomWords> {  // por padrão, States são prefixados com _
+class _RandomWordsState extends State<RandomWords> {      // por padrão, States são prefixados com _
+  final _suggestions = <WordPair>[];  // array  
+  final _biggerFont = const TextStyle(fontSize: 20.0);
+
+  Widget _buildSuggestions() {
+    return ListView.builder(                    // ListView: lista rolável de widgets organizados linearmente
+      padding: const EdgeInsets.all(16.0),      // Padding: adiciona margens | EdgeInsets: determina o deslocamento em todas (.all) as direções
+      itemBuilder: (context, i) {               // itemBuilder: adiciona cada wordPair na lista
+        if (i.isOdd) return const Divider();    // se i == ímpar, cria um divisor
+
+        final index = i ~/ 2;                   // i/2 = inteiro. Calcula a quantidade de palavras na lista sem os divisores
+        if (index >= _suggestions.length) {
+          _suggestions.addAll(generateWordPairs().take(10)); // no fim da lista, add +10
+        }
+
+        return _buildRow(_suggestions[index]);
+      }
+    );
+  }
+
+  Widget _buildRow(WordPair pair) {
+    return ListTile(        // ListTile: estiliza a lista de acordo com Material Design
+      title: Text(
+        pair.asPascalCase,  // asPascalCase == UpperCamelCase
+        style: _biggerFont,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final wordPair = WordPair.random();
-    return Text(wordPair.asPascalCase);   // asPascalCase == UpperCamelCase
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Startup name generator'),
+      ),
+      body: _buildSuggestions(),
+    );
   }
 }
