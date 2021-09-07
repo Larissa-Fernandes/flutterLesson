@@ -2,6 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
 
@@ -25,8 +27,8 @@ class RandomWords extends StatefulWidget {
 }
 
 class _RandomWordsState extends State<RandomWords> {      // por padrão, States são prefixados com _
-  final _suggestions = <WordPair>[];  // array  
-  final _biggerFont = const TextStyle(fontSize: 20.0);
+  final _suggestions = <WordPair>[];  // array list
+  final _saved = <WordPair>{};        // Set
 
   Widget _buildSuggestions() {
     return ListView.builder(                    // ListView: lista rolável de widgets organizados linearmente
@@ -45,11 +47,27 @@ class _RandomWordsState extends State<RandomWords> {      // por padrão, States
   }
 
   Widget _buildRow(WordPair pair) {
+    final alreadySaved = _saved.contains(pair); // verificação
+
     return ListTile(        // ListTile: estiliza a lista de acordo com Material Design
       title: Text(
         pair.asPascalCase,  // asPascalCase == UpperCamelCase
-        style: _biggerFont,
+        style: TextStyle(fontSize: 15.0),
       ),
+      
+      trailing: Icon(       // trailing: add no final
+        alreadySaved ? Icons.favorite : Icons.favorite_border,
+        color: alreadySaved ? Colors.red : null,
+      ),
+      onTap: () {     
+        setState(() {       // setState: mudança de estado
+          if (alreadySaved) {
+            _saved.remove(pair);
+          } else {
+            _saved.add(pair);
+          }
+        });
+      },
     );
   }
 
@@ -58,8 +76,41 @@ class _RandomWordsState extends State<RandomWords> {      // por padrão, States
     return Scaffold(
       appBar: AppBar(
         title: const Text('Startup name generator'),
+        actions: [
+          IconButton(onPressed: _pushSaved, icon: Icon(Icons.list))
+        ],
       ),
       body: _buildSuggestions(),
+    );
+  }
+
+  void _pushSaved(){
+    Navigator.of(context).push(
+      MaterialPageRoute <void> (            // cria rota para uma nova tela
+        builder: (BuildContext context) {
+          final tiles = _saved.map(
+            (WordPair pair) {
+              return ListTile(
+                title: Text(
+                  pair.asPascalCase,
+                  style: TextStyle(fontSize: 15.0),
+                ),
+              );
+            },
+          );
+          final divided = ListTile.divideTiles(
+            context: context,
+            tiles: tiles,
+          ).toList();
+
+          return Scaffold(
+            appBar: AppBar(
+              title: Text('Saved Suggestions'),
+            ),
+            body: ListView(children: divided),
+          );
+        },
+      )
     );
   }
 }
