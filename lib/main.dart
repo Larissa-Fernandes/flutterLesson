@@ -15,6 +15,14 @@ class MyApp extends StatelessWidget {   // StatelessWidget: os widgets nao mudam
     return MaterialApp(                 //  ver Material design
       title: 'Startup name generator',
       home: RandomWords(),
+      theme: ThemeData(
+        primaryColor: Colors.pink[100],
+        primaryTextTheme: TextTheme(
+          title: TextStyle(
+            color: Colors.grey[800]
+          )
+        ),
+      ),
     );
   }
 }
@@ -57,7 +65,7 @@ class _RandomWordsState extends State<RandomWords> {      // por padrão, States
       
       trailing: Icon(       // trailing: add no final
         alreadySaved ? Icons.favorite : Icons.favorite_border,
-        color: alreadySaved ? Colors.red : null,
+        color: Colors.pink[100],
       ),
       onTap: () {     
         setState(() {       // setState: mudança de estado
@@ -88,7 +96,7 @@ class _RandomWordsState extends State<RandomWords> {      // por padrão, States
     Navigator.of(context).push(
       MaterialPageRoute <void> (            // cria rota para uma nova tela
         builder: (BuildContext context) {
-          final tiles = _saved.map(
+          final tiles = _saved.map(         // cria um novo array com base no callback
             (WordPair pair) {
               return ListTile(
                 title: Text(
